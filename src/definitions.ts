@@ -1,5 +1,5 @@
 import type { PluginListenerHandle } from '@capacitor/core'
-import type { DustCoreError, ModelDescriptor, ModelStatus } from '@dust/capacitor-core'
+import type { DustCoreError, ModelDescriptor, ModelStatus } from 'dust-core-capacitor'
 
 // ─── Composite types ─────────────────────────────────────────────────────────
 
