@@ -1,0 +1,64 @@
+{
+  "name": "@dust/serve-capacitor",
+  "version": "0.1.0",
+  "description": "Model lifecycle manager for Capacitor — registry, downloads, sessions, memory pressure.",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "type": "module",
+  "author": "Techxagon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rogelioRuiz/dust-serve-capacitor.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "lint": "biome check .",
+    "lint:fix": "biome check --fix .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "files": [
+    "dist/esm/",
+    "android/src/main/",
+    "android/build.gradle",
+    "ios/Sources/",
+    "DustCapacitorServe.podspec",
+    "Package.swift"
+  ],
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "ml",
+    "model",
+    "server",
+    "inference",
+    "registry"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@capacitor/core": "^7.0.0 || ^8.0.0",
+    "@dust/core-capacitor": ">=0.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@capacitor/core": "^8.0.0",
+    "@dust/core-capacitor": "^0.1.0",
+    "typescript": "~5.7.0",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
