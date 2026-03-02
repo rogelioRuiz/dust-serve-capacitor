@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "DustCapacitorServe",
+    name: "DustServeCapacitor",
     platforms: [.iOS(.v16)],
     products: [
         .library(
-            name: "DustCapacitorServe",
+            name: "DustServeCapacitor",
             targets: ["ServePlugin"]
         )
     ],
@@ -22,7 +22,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
-                .product(name: "DustCapacitorCore", package: "dust-core-capacitor"),
+                .product(name: "DustCoreCapacitor", package: "dust-core-capacitor"),
                 .product(name: "DustCore", package: "dust-core-swift"),
                 .product(name: "DustServe", package: "dust-serve-swift"),
             ],
