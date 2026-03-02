@@ -14,8 +14,9 @@
 <p align="center">
   <a href="https://github.com/rogelioRuiz/dust/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
   <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-informational">
-  <img alt="npm" src="https://img.shields.io/badge/npm-%40dust%2Fcapacitor--serve-cb3837">
+  <img alt="npm" src="https://img.shields.io/badge/npm-dust--serve--capacitor-cb3837">
   <img alt="Capacitor" src="https://img.shields.io/badge/Capacitor-7%20%7C%208-119EFF">
+  <a href="https://github.com/rogelioRuiz/dust-serve-capacitor/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/rogelioRuiz/dust-serve-capacitor/actions/workflows/ci.yml/badge.svg?branch=main"></a>
 </p>
 
 ---
@@ -61,7 +62,7 @@ Capacitor plugin for on-device model lifecycle management — registry, resumabl
 ## Install
 
 ```bash
-npm install capacitor-serve
+npm install dust-serve-capacitor
 npx cap sync
 ```
 
@@ -70,7 +71,7 @@ Peer dependencies:
 ```json
 {
   "@capacitor/core": "^7.0.0 || ^8.0.0",
-  "@dust/capacitor-core": ">=0.1.0"
+  "dust-core-capacitor": ">=0.1.0"
 }
 ```
 
@@ -134,7 +135,7 @@ Models are registered from native code via `ModelRegistry.register(descriptor)`.
 ## Types
 
 ```typescript
-import type { ModelDescriptor, ModelStatus, DustCoreError } from '@dust/capacitor-core';
+import type { ModelDescriptor, ModelStatus, DustCoreError } from 'dust-core-capacitor';
 
 interface ModelDescriptorWithStatus {
   descriptor: ModelDescriptor;
@@ -206,7 +207,7 @@ notLoaded → downloading(progress) → verifying → ready
 
 ```
 capacitor-serve/
-├── package.json                 # npm package, peer deps: @capacitor/core, @dust/capacitor-core
+├── package.json                 # npm package, peer deps: @capacitor/core, dust-core-capacitor
 ├── Package.swift                # SPM manifest (depends on DustServe)
 ├── DustCapacitorServe.podspec # CocoaPods spec
 ├── src/
