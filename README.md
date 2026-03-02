@@ -6,7 +6,42 @@
   </picture>
 </p>
 
-<p align="center"><strong>Device Unified Serving Toolkit</strong></p>
+<p align="center">
+  <strong>Device Unified Serving Toolkit</strong><br>
+  <a href="https://github.com/rogelioRuiz/dust">dust ecosystem</a> · v0.1.0 · Apache 2.0
+</p>
+
+<p align="center">
+  <a href="https://github.com/rogelioRuiz/dust/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-informational">
+  <img alt="npm" src="https://img.shields.io/badge/npm-%40dust%2Fcapacitor--serve-cb3837">
+  <img alt="Capacitor" src="https://img.shields.io/badge/Capacitor-7%20%7C%208-119EFF">
+</p>
+
+---
+
+<p align="center">
+<strong>dust ecosystem</strong> —
+<a href="../capacitor-core/README.md">capacitor-core</a> ·
+<a href="../capacitor-llm/README.md">capacitor-llm</a> ·
+<a href="../capacitor-onnx/README.md">capacitor-onnx</a> ·
+<strong>capacitor-serve</strong> ·
+<a href="../capacitor-embeddings/README.md">capacitor-embeddings</a>
+<br>
+<a href="../dust-core-kotlin/README.md">dust-core-kotlin</a> ·
+<a href="../dust-llm-kotlin/README.md">dust-llm-kotlin</a> ·
+<a href="../dust-onnx-kotlin/README.md">dust-onnx-kotlin</a> ·
+<a href="../dust-embeddings-kotlin/README.md">dust-embeddings-kotlin</a> ·
+<a href="../dust-serve-kotlin/README.md">dust-serve-kotlin</a>
+<br>
+<a href="../dust-core-swift/README.md">dust-core-swift</a> ·
+<a href="../dust-llm-swift/README.md">dust-llm-swift</a> ·
+<a href="../dust-onnx-swift/README.md">dust-onnx-swift</a> ·
+<a href="../dust-embeddings-swift/README.md">dust-embeddings-swift</a> ·
+<a href="../dust-serve-swift/README.md">dust-serve-swift</a>
+</p>
+
+---
 
 # capacitor-serve
 
@@ -222,7 +257,7 @@ See [INTEGRATION-TESTS.md](INTEGRATION-TESTS.md) for manual device verification 
 
 ## License
 
-MIT
+Copyright 2026 Rogelio Ruiz Perez. Licensed under the [Apache License 2.0](LICENSE).
 
 ---
 
