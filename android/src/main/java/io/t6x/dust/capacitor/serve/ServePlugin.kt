@@ -116,10 +116,18 @@ class ServePlugin : Plugin(), ModelServer {
 
     // ── Native API (called by task plugins, not JS) ──────────────────────────
 
-    /** Registers a model descriptor and initialises its state to NotLoaded. */
+    /** Registers a model descriptor and restores Ready state if the model file already exists. */
     fun register(descriptor: ModelDescriptor) {
         modelRegistry.register(descriptor)
-        stateStore.setStatus(descriptor.id, ModelStatus.NotLoaded)
+        val finalFile = java.io.File(java.io.File(java.io.File(context.filesDir, "models"), descriptor.id), "${descriptor.id}.bin")
+        if (finalFile.exists()) {
+            stateStore.updateState(descriptor.id) {
+                status = ModelStatus.Ready
+                filePath = finalFile.absolutePath
+            }
+        } else {
+            stateStore.setStatus(descriptor.id, ModelStatus.NotLoaded)
+        }
     }
 
     fun getDeviceTier(): DeviceTier? = probeResultStore.getDeviceTier()
@@ -217,9 +225,11 @@ class ServePlugin : Plugin(), ModelServer {
             call.reject("modelId is required")
             return
         }
-        val status = stateStore.getStatus(modelId)
+        val state = stateStore.getState(modelId)
+        val statusObj = (state?.status ?: ModelStatus.NotLoaded).toJSObject()
+        state?.filePath?.let { statusObj.put("path", it) }
         val result = JSObject()
-        result.put("status", status.toJSObject())
+        result.put("status", statusObj)
         call.resolve(result)
     }
 
