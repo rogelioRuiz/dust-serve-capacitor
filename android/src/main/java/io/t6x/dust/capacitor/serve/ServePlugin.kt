@@ -20,10 +20,13 @@ class ServePlugin : Plugin(), ModelServer {
 
     private val modelRegistry = ModelRegistry()
     private lateinit var postDownloadOrchestrator: PostDownloadOrchestrator
+    private val pendingProbes = java.util.concurrent.CopyOnWriteArrayList<Pair<String, ModelStatus>>()
     private val stateStore = ModelStateStore(
         onStatusChange = { modelId, status ->
             if (::postDownloadOrchestrator.isInitialized) {
                 postDownloadOrchestrator.onStatusChange(modelId, status)
+            } else {
+                pendingProbes.add(modelId to status)
             }
         },
     )
@@ -80,6 +83,11 @@ class ServePlugin : Plugin(), ModelServer {
             baseDir = context.filesDir,
             scope = downloadScope,
         )
+        val pending = pendingProbes.toList()
+        pendingProbes.clear()
+        for ((modelId, status) in pending) {
+            postDownloadOrchestrator.onStatusChange(modelId, status)
+        }
         DustCoreRegistry.getInstance().registerModelServer(this)
         downloadManager.cleanupStalePartFiles()
         memoryCallback = object : android.content.ComponentCallbacks2 {
