@@ -44,7 +44,12 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
     public override func load() {
         DustCoreRegistry.shared.register(modelServer: self)
         _ = downloadManager
-        downloadManager.cleanupStalePartFiles()
+        Task {
+            await downloadManager.resumeOrphanedDownloads { [weak self] modelId in
+                self?.modelRegistry.descriptor(for: modelId)
+            }
+            downloadManager.cleanupStalePartFiles(activeModelIds: downloadManager.activeModelIds)
+        }
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleMemoryWarning),
@@ -69,6 +74,9 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
                 state.status = .ready
                 state.filePath = cachedPath
             }
+        } else if downloadManager.isDownloading(modelId: descriptor.id)
+                    || backgroundDownloadEngine.hasPersistedDownload(forModelId: descriptor.id) {
+            stateStore.setStatus(.downloading(progress: 0), for: descriptor.id)
         } else {
             stateStore.setStatus(.notLoaded, for: descriptor.id)
         }

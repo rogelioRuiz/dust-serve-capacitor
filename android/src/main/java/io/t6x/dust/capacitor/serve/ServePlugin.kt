@@ -89,7 +89,12 @@ class ServePlugin : Plugin(), ModelServer {
             postDownloadOrchestrator.onStatusChange(modelId, status)
         }
         DustCoreRegistry.getInstance().registerModelServer(this)
-        downloadManager.cleanupStalePartFiles()
+        downloadScope.launch {
+            val activeIds = downloadCoordinator.reconnectActiveDownloads { id ->
+                modelRegistry.getDescriptor(id)
+            }
+            downloadManager.cleanupStalePartFiles(activeModelIds = activeIds)
+        }
         memoryCallback = object : android.content.ComponentCallbacks2 {
             @Suppress("DEPRECATION")
             override fun onTrimMemory(level: Int) {
@@ -133,6 +138,8 @@ class ServePlugin : Plugin(), ModelServer {
                 status = ModelStatus.Ready
                 filePath = finalFile.absolutePath
             }
+        } else if (downloadCoordinator.isActive(descriptor.id)) {
+            stateStore.setStatus(descriptor.id, ModelStatus.Downloading(0f))
         } else {
             stateStore.setStatus(descriptor.id, ModelStatus.NotLoaded)
         }
