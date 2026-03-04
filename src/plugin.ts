@@ -11,6 +11,10 @@ import type {
 } from './definitions'
 
 class ServeWeb extends WebPlugin implements ServePlugin {
+  async registerModel(_options: { descriptor: unknown }): Promise<void> {
+    throw this.unimplemented('registerModel is not supported on web')
+  }
+
   async listModels(): Promise<{ models: [] }> {
     return { models: [] }
   }
