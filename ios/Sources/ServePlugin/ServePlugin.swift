@@ -9,6 +9,7 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
     public let identifier = "ServePlugin"
     public let jsName = "Serve"
     public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "registerModel", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "listModels", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getModelStatus", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "downloadModel", returnType: CAPPluginReturnPromise),
@@ -58,6 +59,62 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
     public func register(descriptor: DustModelDescriptor) {
         modelRegistry.register(descriptor: descriptor)
         stateStore.setStatus(.notLoaded, for: descriptor.id)
+    }
+
+    /// Injects the session factory from a task plugin (e.g. LLMPlugin, ONNXPlugin).
+    public func setSessionFactory(_ factory: any DustModelSessionFactory) {
+        sessionManager.setFactory(factory)
+    }
+
+    // MARK: - JS Bridge (registerModel)
+
+    @objc func registerModel(_ call: CAPPluginCall) {
+        guard let descriptorObj = call.getObject("descriptor"),
+              let id = descriptorObj["id"] as? String, !id.isEmpty,
+              let name = descriptorObj["name"] as? String, !name.isEmpty,
+              let formatStr = descriptorObj["format"] as? String, !formatStr.isEmpty,
+              let sizeBytesRaw = descriptorObj["sizeBytes"],
+              let version = descriptorObj["version"] as? String, !version.isEmpty
+        else {
+            call.reject("descriptor.id, name, format, sizeBytes, and version are required")
+            return
+        }
+
+        guard let format = DustModelFormat(rawValue: formatStr) else {
+            call.reject("Unknown format: \(formatStr)")
+            return
+        }
+
+        let sizeBytes: Int64
+        if let n = sizeBytesRaw as? Int64 {
+            sizeBytes = n
+        } else if let n = sizeBytesRaw as? Int {
+            sizeBytes = Int64(n)
+        } else if let n = sizeBytesRaw as? Double {
+            sizeBytes = Int64(n)
+        } else {
+            call.reject("descriptor.sizeBytes must be a number")
+            return
+        }
+
+        let url = descriptorObj["url"] as? String
+        let sha256 = descriptorObj["sha256"] as? String
+        let quantization = descriptorObj["quantization"] as? String
+        let metadata = descriptorObj["metadata"] as? [String: String]
+
+        let descriptor = DustModelDescriptor(
+            id: id,
+            name: name,
+            format: format,
+            sizeBytes: sizeBytes,
+            version: version,
+            url: url,
+            sha256: sha256,
+            quantization: quantization,
+            metadata: metadata
+        )
+        register(descriptor: descriptor)
+        call.resolve()
     }
 
     // MARK: - DustModelServer conformance

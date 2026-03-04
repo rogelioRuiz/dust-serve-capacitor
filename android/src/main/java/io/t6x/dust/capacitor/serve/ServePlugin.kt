@@ -124,6 +124,55 @@ class ServePlugin : Plugin(), ModelServer {
 
     fun getDeviceTier(): DeviceTier? = probeResultStore.getDeviceTier()
 
+    /** Injects the session factory from a task plugin (e.g. LLMPlugin, ONNXPlugin). */
+    fun setSessionFactory(factory: ModelSessionFactory) {
+        sessionManager.setFactory(factory)
+    }
+
+    // ── JS Bridge ────────────────────────────────────────────────────────────
+
+    @PluginMethod
+    fun registerModel(call: PluginCall) {
+        val descriptorObj = call.getObject("descriptor")
+        val id = descriptorObj?.getString("id")
+        val name = descriptorObj?.getString("name")
+        val formatStr = descriptorObj?.getString("format")
+        val sizeBytes = descriptorObj?.getLong("sizeBytes")
+        val version = descriptorObj?.getString("version")
+
+        if (id.isNullOrEmpty() || name.isNullOrEmpty() || formatStr.isNullOrEmpty() || sizeBytes == null || version.isNullOrEmpty()) {
+            call.reject("descriptor.id, name, format, sizeBytes, and version are required")
+            return
+        }
+        val format = ModelFormat.fromValue(formatStr)
+        if (format == null) {
+            call.reject("Unknown format: $formatStr")
+            return
+        }
+        val url = descriptorObj.getString("url")
+        val sha256 = descriptorObj.getString("sha256")
+        val quantization = descriptorObj.getString("quantization")
+        val metaObj = descriptorObj.getJSObject("metadata")
+        val metadata: Map<String, String>? = metaObj?.let { obj ->
+            val map = mutableMapOf<String, String>()
+            obj.keys().forEach { k -> obj.getString(k)?.let { v -> map[k] = v } }
+            map.ifEmpty { null }
+        }
+        val descriptor = ModelDescriptor(
+            id = id,
+            name = name,
+            format = format,
+            sizeBytes = sizeBytes,
+            version = version,
+            url = url,
+            sha256 = sha256,
+            quantization = quantization,
+            metadata = metadata,
+        )
+        register(descriptor)
+        call.resolve()
+    }
+
     // ── ModelServer interface conformance ────────────────────────────────────
 
     override suspend fun loadModel(descriptor: ModelDescriptor, priority: SessionPriority): ModelSession {
@@ -145,8 +194,6 @@ class ServePlugin : Plugin(), ModelServer {
     override suspend fun modelStatus(id: String): ModelStatus {
         return stateStore.getStatus(id)
     }
-
-    // ── JS Bridge ────────────────────────────────────────────────────────────
 
     @PluginMethod
     fun listModels(call: PluginCall) {

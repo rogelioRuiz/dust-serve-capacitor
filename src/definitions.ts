@@ -37,6 +37,12 @@ export interface NetworkPolicy {
 // ─── Capacitor Plugin Interface (S2 scope) ───────────────────────────────────
 
 export interface ServePlugin {
+  /**
+   * Registers a model descriptor so it can be downloaded and tracked.
+   * If a model with the same id is already registered, the descriptor is
+   * updated in place (idempotent — safe to call on every app start).
+   */
+  registerModel(options: { descriptor: ModelDescriptor }): Promise<void>
   listModels(): Promise<{ models: ModelDescriptorWithStatus[] }>
   getModelStatus(options: { modelId: string }): Promise<{ status: ModelStatus }>
   downloadModel(options: { modelId: string }): Promise<void>
