@@ -55,10 +55,23 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
 
     // MARK: - Native API (called by task plugins, not JS)
 
-    /// Registers a model descriptor and initialises its state to `.notLoaded`.
+    /// Registers a model descriptor. If the model file is already on disk, restores
+    /// state to `.ready` with the cached path; otherwise initialises to `.notLoaded`.
     public func register(descriptor: DustModelDescriptor) {
         modelRegistry.register(descriptor: descriptor)
-        stateStore.setStatus(.notLoaded, for: descriptor.id)
+        let cachedPath = baseDirectory
+            .appendingPathComponent("models", isDirectory: true)
+            .appendingPathComponent(descriptor.id, isDirectory: true)
+            .appendingPathComponent("\(descriptor.id).bin", isDirectory: false)
+            .path
+        if FileManager.default.fileExists(atPath: cachedPath) {
+            stateStore.updateState(for: descriptor.id) { state in
+                state.status = .ready
+                state.filePath = cachedPath
+            }
+        } else {
+            stateStore.setStatus(.notLoaded, for: descriptor.id)
+        }
     }
 
     /// Injects the session factory from a task plugin (e.g. LLMPlugin, ONNXPlugin).
@@ -147,10 +160,10 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
     @objc func listModels(_ call: CAPPluginCall) {
         let descriptors = modelRegistry.allDescriptors()
         let models: [[String: Any]] = descriptors.map { descriptor in
-            let status = stateStore.status(for: descriptor.id)
+            let state = stateStore.state(for: descriptor.id)
             return [
                 "descriptor": descriptor.toJSObject(),
-                "status": status.toJSObject(),
+                "status": state?.status.toJSObject(path: state?.filePath) ?? DustModelStatus.notLoaded.toJSObject(path: nil),
             ]
         }
         call.resolve(["models": models])
@@ -161,8 +174,8 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
             call.reject("modelId is required")
             return
         }
-        let status = stateStore.status(for: modelId)
-        call.resolve(["status": status.toJSObject()])
+        let state = stateStore.state(for: modelId)
+        call.resolve(["status": state?.status.toJSObject(path: state?.filePath) ?? DustModelStatus.notLoaded.toJSObject(path: nil)])
     }
 
     @objc func downloadModel(_ call: CAPPluginCall) {
@@ -261,7 +274,7 @@ extension DustModelDescriptor {
 }
 
 extension DustModelStatus {
-    func toJSObject() -> [String: Any] {
+    func toJSObject(path: String? = nil) -> [String: Any] {
         switch self {
         case .notLoaded:
             return ["kind": "notLoaded"]
@@ -272,7 +285,9 @@ extension DustModelStatus {
         case .loading:
             return ["kind": "loading"]
         case .ready:
-            return ["kind": "ready"]
+            var obj: [String: Any] = ["kind": "ready"]
+            if let path { obj["path"] = path }
+            return obj
         case .failed(let error):
             return ["kind": "failed", "error": error.toJSObject()]
         case .unloading:

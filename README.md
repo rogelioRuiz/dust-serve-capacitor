@@ -8,12 +8,12 @@
 
 <p align="center">
   <strong>Device Unified Serving Toolkit</strong><br>
-  <a href="https://github.com/rogelioRuiz/dust">dust ecosystem</a> · v0.1.0 · Apache 2.0
+  <a href="https://github.com/rogelioRuiz/dust">dust ecosystem</a> · v0.1.8 · Apache 2.0
 </p>
 
 <p align="center">
   <a href="https://github.com/rogelioRuiz/dust/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-informational">
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1.8-informational">
   <img alt="npm" src="https://img.shields.io/badge/npm-dust--serve--capacitor-cb3837">
   <img alt="Capacitor" src="https://img.shields.io/badge/Capacitor-7%20%7C%208-119EFF">
   <a href="https://github.com/rogelioRuiz/dust-serve-capacitor/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/rogelioRuiz/dust-serve-capacitor/actions/workflows/ci.yml/badge.svg?branch=main"></a>

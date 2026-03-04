@@ -14,7 +14,7 @@ let package = Package(
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
         .package(url: "https://github.com/rogelioRuiz/dust-core-capacitor.git", from: "0.1.0"),
         .package(url: "https://github.com/rogelioRuiz/dust-core-swift.git", from: "0.1.3"),
-        .package(url: "https://github.com/rogelioRuiz/dust-serve-swift.git", from: "0.1.2"),
+        .package(url: "https://github.com/rogelioRuiz/dust-serve-swift.git", from: "0.1.3"),
     ],
     targets: [
         .target(
