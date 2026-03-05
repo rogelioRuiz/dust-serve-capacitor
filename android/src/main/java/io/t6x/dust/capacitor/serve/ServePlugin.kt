@@ -132,11 +132,20 @@ class ServePlugin : Plugin(), ModelServer {
     /** Registers a model descriptor and restores Ready state if the model file already exists. */
     fun register(descriptor: ModelDescriptor) {
         modelRegistry.register(descriptor)
-        val finalFile = java.io.File(java.io.File(java.io.File(context.filesDir, "models"), descriptor.id), "${descriptor.id}.bin")
-        if (finalFile.exists()) {
+        val modelDir = java.io.File(java.io.File(context.filesDir, "models"), descriptor.id)
+        val binFile = java.io.File(modelDir, "${descriptor.id}.bin")
+        val hasManifestFiles = modelDir.exists() && (modelDir.listFiles()?.any {
+            it.name.endsWith(".safetensors") || it.name == "config.json"
+        } == true)
+        if (binFile.exists()) {
             stateStore.updateState(descriptor.id) {
                 status = ModelStatus.Ready
-                filePath = finalFile.absolutePath
+                filePath = binFile.absolutePath
+            }
+        } else if (hasManifestFiles) {
+            stateStore.updateState(descriptor.id) {
+                status = ModelStatus.Ready
+                filePath = modelDir.absolutePath
             }
         } else if (downloadCoordinator.isActive(descriptor.id)) {
             stateStore.setStatus(descriptor.id, ModelStatus.Downloading(0f))
