@@ -64,19 +64,30 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
     /// state to `.ready` with the cached path; otherwise initialises to `.notLoaded`.
     public func register(descriptor: DustModelDescriptor) {
         modelRegistry.register(descriptor: descriptor)
-        let cachedPath = baseDirectory
+        let modelDir = baseDirectory
             .appendingPathComponent("models", isDirectory: true)
             .appendingPathComponent(descriptor.id, isDirectory: true)
+        let binPath = modelDir
             .appendingPathComponent("\(descriptor.id).bin", isDirectory: false)
             .path
-        if FileManager.default.fileExists(atPath: cachedPath) {
+        let dirHasModelFiles = (try? FileManager.default.contentsOfDirectory(atPath: modelDir.path))?
+            .contains { $0.hasSuffix(".safetensors") || $0 == "config.json" } ?? false
+        if FileManager.default.fileExists(atPath: binPath) {
             stateStore.updateState(for: descriptor.id) { state in
                 state.status = .ready
-                state.filePath = cachedPath
+                state.filePath = binPath
             }
-        } else if downloadManager.isDownloading(modelId: descriptor.id)
+        } else if dirHasModelFiles {
+            stateStore.updateState(for: descriptor.id) { state in
+                state.status = .ready
+                state.filePath = modelDir.path
+            }
+        } else if downloadManager.isDownloading(modelId: descriptor.id) {
+            stateStore.setStatus(.downloading(progress: 0), for: descriptor.id)
+        } else if downloadManager.hasPendingReconnection(modelId: descriptor.id)
                     || backgroundDownloadEngine.hasPersistedDownload(forModelId: descriptor.id) {
             stateStore.setStatus(.downloading(progress: 0), for: descriptor.id)
+            downloadManager.attachReconnectedDownload(for: descriptor)
         } else {
             stateStore.setStatus(.notLoaded, for: descriptor.id)
         }

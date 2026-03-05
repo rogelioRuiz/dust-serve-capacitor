@@ -140,6 +140,9 @@ class ServePlugin : Plugin(), ModelServer {
             }
         } else if (downloadCoordinator.isActive(descriptor.id)) {
             stateStore.setStatus(descriptor.id, ModelStatus.Downloading(0f))
+        } else if (downloadCoordinator.hasPendingReconnection(descriptor.id)) {
+            stateStore.setStatus(descriptor.id, ModelStatus.Downloading(0f))
+            downloadCoordinator.attachReconnectedDownload(descriptor)
         } else {
             stateStore.setStatus(descriptor.id, ModelStatus.NotLoaded)
         }
