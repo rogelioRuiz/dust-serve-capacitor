@@ -84,10 +84,14 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
             }
         } else if downloadManager.isDownloading(modelId: descriptor.id) {
             stateStore.setStatus(.downloading(progress: 0), for: descriptor.id)
-        } else if downloadManager.hasPendingReconnection(modelId: descriptor.id)
-                    || backgroundDownloadEngine.hasPersistedDownload(forModelId: descriptor.id) {
+        } else if downloadManager.hasPendingReconnection(modelId: descriptor.id) {
             stateStore.setStatus(.downloading(progress: 0), for: descriptor.id)
             downloadManager.attachReconnectedDownload(for: descriptor)
+        } else if backgroundDownloadEngine.hasPersistedDownload(forModelId: descriptor.id) {
+            // Persisted URL mapping exists but no live background task — the task died
+            // (e.g. simulator kill). Restart the download transparently.
+            stateStore.setStatus(.downloading(progress: 0), for: descriptor.id)
+            _ = downloadManager.download(descriptor)
         } else {
             stateStore.setStatus(.notLoaded, for: descriptor.id)
         }
