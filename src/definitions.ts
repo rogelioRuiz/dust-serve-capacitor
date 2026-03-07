@@ -47,6 +47,12 @@ export interface ServePlugin {
   getModelStatus(options: { modelId: string }): Promise<{ status: ModelStatus }>
   downloadModel(options: { modelId: string }): Promise<void>
   cancelDownload(options: { modelId: string }): Promise<void>
+  /**
+   * Deletes a model's files from disk, cancels any active download,
+   * and resets its status to `notLoaded`. The descriptor remains registered
+   * so the model can be re-downloaded without re-registering.
+   */
+  deleteModel(options: { modelId: string }): Promise<void>
   setNetworkPolicy(options: NetworkPolicy): Promise<void>
   getNetworkPolicy(): Promise<NetworkPolicy>
   addListener(

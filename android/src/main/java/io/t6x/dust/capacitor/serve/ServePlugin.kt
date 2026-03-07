@@ -291,6 +291,32 @@ class ServePlugin : Plugin(), ModelServer {
     }
 
     @PluginMethod
+    fun deleteModel(call: PluginCall) {
+        val modelId = call.getString("modelId")
+        if (modelId == null) {
+            call.reject("modelId is required")
+            return
+        }
+
+        // 1. Cancel any active download
+        downloadCoordinator.cancelDownload(modelId)
+
+        // 2. Unload session if loaded
+        downloadScope.launch {
+            try { sessionManager.unloadModel(modelId) } catch (_: Exception) {}
+        }
+
+        // 3. Delete model files from disk
+        val modelDir = java.io.File(java.io.File(context.filesDir, "models"), modelId)
+        modelDir.deleteRecursively()
+
+        // 4. Reset state to notLoaded
+        stateStore.setStatus(modelId, ModelStatus.NotLoaded)
+
+        call.resolve()
+    }
+
+    @PluginMethod
     fun setNetworkPolicy(call: PluginCall) {
         val wifiOnly = call.getBoolean("wifiOnly") ?: false
         context.getSharedPreferences(

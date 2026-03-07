@@ -31,6 +31,10 @@ class ServeWeb extends WebPlugin implements ServePlugin {
     throw this.unimplemented('cancelDownload is not supported on web')
   }
 
+  async deleteModel(_options: { modelId: string }): Promise<void> {
+    throw this.unimplemented('deleteModel is not supported on web')
+  }
+
   async setNetworkPolicy(_options: NetworkPolicy): Promise<void> {
     throw this.unimplemented('setNetworkPolicy is not supported on web')
   }

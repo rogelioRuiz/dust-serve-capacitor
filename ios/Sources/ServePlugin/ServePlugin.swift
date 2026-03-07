@@ -14,6 +14,7 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
         CAPPluginMethod(name: "getModelStatus", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "downloadModel", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "cancelDownload", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "deleteModel", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setNetworkPolicy", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getNetworkPolicy", returnType: CAPPluginReturnPromise),
     ]
@@ -223,6 +224,32 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
         }
 
         downloadManager.cancelDownload(modelId: modelId)
+        call.resolve()
+    }
+
+    @objc func deleteModel(_ call: CAPPluginCall) {
+        guard let modelId = call.getString("modelId") else {
+            call.reject("modelId is required")
+            return
+        }
+
+        // 1. Cancel any active download
+        downloadManager.cancelDownload(modelId: modelId)
+
+        // 2. Unload session if loaded
+        Task {
+            try? await sessionManager.unloadModel(id: modelId)
+        }
+
+        // 3. Delete model files from disk
+        let modelDir = baseDirectory
+            .appendingPathComponent("models", isDirectory: true)
+            .appendingPathComponent(modelId, isDirectory: true)
+        try? FileManager.default.removeItem(at: modelDir)
+
+        // 4. Reset state to notLoaded
+        stateStore.setStatus(.notLoaded, for: modelId)
+
         call.resolve()
     }
 
