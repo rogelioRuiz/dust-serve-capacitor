@@ -22,10 +22,7 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
     private let modelRegistry = ModelRegistry()
     private let stateStore = ModelStateStore()
     private let userDefaults = UserDefaults.standard
-    private lazy var sessionManager = SessionManager(
-        stateStore: stateStore,
-        factory: StubModelSessionFactory()
-    )
+    private lazy var sessionManager = SessionManager(stateStore: stateStore)
     private lazy var baseDirectory: URL = FileManager.default.urls(
         for: .applicationSupportDirectory,
         in: .userDomainMask
@@ -99,6 +96,10 @@ public class ServePlugin: CAPPlugin, CAPBridgedPlugin, DustModelServer {
     }
 
     /// Injects the session factory from a task plugin (e.g. LLMPlugin, ONNXPlugin).
+    public func setSessionFactory(_ factory: any DustModelSessionFactory, for key: String) {
+        sessionManager.setFactory(factory, for: key)
+    }
+
     public func setSessionFactory(_ factory: any DustModelSessionFactory) {
         sessionManager.setFactory(factory)
     }

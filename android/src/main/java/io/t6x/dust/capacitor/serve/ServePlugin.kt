@@ -34,7 +34,6 @@ class ServePlugin : Plugin(), ModelServer {
     private val sessionManager by lazy {
         SessionManager(
             stateStore = stateStore,
-            factory = StubModelSessionFactory(),
         )
     }
     private val probeResultStore: ProbeResultStore by lazy {
@@ -160,6 +159,10 @@ class ServePlugin : Plugin(), ModelServer {
     fun getDeviceTier(): DeviceTier? = probeResultStore.getDeviceTier()
 
     /** Injects the session factory from a task plugin (e.g. LLMPlugin, ONNXPlugin). */
+    fun setSessionFactory(factory: ModelSessionFactory, key: String) {
+        sessionManager.setFactory(key, factory)
+    }
+
     fun setSessionFactory(factory: ModelSessionFactory) {
         sessionManager.setFactory(factory)
     }
